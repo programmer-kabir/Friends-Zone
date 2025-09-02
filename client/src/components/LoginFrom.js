@@ -1,15 +1,45 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-
 const LoginFrom = ({ mode = "signup" }) => {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false);
-
+  
   const togglePassword = () => setShowPassword(!showPassword);
-
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const formData = new FormData(event.currentTarget);
+      const email = formData.get("email");
+      const password = formData.get("password");
+      if (mode === "signup") {
+        const firstName = formData.get("firstName");
+        const lastName = formData.get("lastName");
+        const name = firstName + " " + lastName;
+        console.log(name, email, password);
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+          }),
+            
+        });
+        response.status === 201 && router.push('/');
+      } else if (mode === "signin") {
+        console.log("Signin data");
+      }
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
   return (
-    <form className="pt-5 space-y-4">
-      {/* First & Last Name শুধুমাত্র Signup এ */}
+    <form className="pt-5 space-y-4" onSubmit={handleSubmit}>
       {mode === "signup" && (
         <div className="grid grid-cols-2 gap-4">
           <input
@@ -52,7 +82,11 @@ const LoginFrom = ({ mode = "signup" }) => {
           onClick={togglePassword}
           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
         >
-          {showPassword ? <FaEye className="w-5 h-5" /> : <FaEyeSlash className="w-5 h-5" />}
+          {showPassword ? (
+            <FaEye className="w-5 h-5" />
+          ) : (
+            <FaEyeSlash className="w-5 h-5" />
+          )}
         </button>
       </div>
 
