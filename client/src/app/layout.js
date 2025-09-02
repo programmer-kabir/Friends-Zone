@@ -1,6 +1,7 @@
 import { Roboto  } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import ToastProvider from "../components/ToastProvider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
         </ul>
       </div> */}
         {children}
+         <ToastProvider />
       </body>
     </html>
   );

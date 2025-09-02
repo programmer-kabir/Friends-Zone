@@ -32,7 +32,7 @@ const SignIn = () => {
 
           {/* Form */}
           <LoginFrom mode="signin" />
-          <SocialLogin mode="signin" />
+          {/* <SocialLogin mode="signin" /> */}
         </div>
       </div>
     </div>

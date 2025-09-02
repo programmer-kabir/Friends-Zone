@@ -31,7 +31,7 @@ const SignUP = () => {
             </div>
 
             <LoginFrom mode='signup'/>
-           <SocialLogin mode="signup"/>
+           {/* <SocialLogin mode="signup"/> */}
            
           
         </div>
