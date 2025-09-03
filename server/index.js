@@ -4,7 +4,7 @@ const port = 5000;
 const cors = require("cors");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
 //Middleware
 app.use(
@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
     // Connect the client to the server
     const usersCollection = client.db("Friends-Zone").collection("users");
+    const allPostsCollection = client.db("Friends-Zone").collection("allposts");
 
     // User registration route
     app.post("/register", async (req, res) => {
@@ -57,12 +58,14 @@ async function run() {
           createdAt: new Date(),
         });
         const token = jwt.sign(
-          {  userId: result.insertedId,
-    email,
-    name,
-    userName,
-    image,
-    createdAt: new Date(), },
+          {
+            userId: result.insertedId,
+            email,
+            name,
+            userName,
+            image,
+            createdAt: new Date(),
+          },
           process.env.JWT_SECRET,
           { expiresIn: "1d" }
         );
@@ -129,22 +132,82 @@ async function run() {
       res.send(getAllusers);
     });
     app.get("/me", async (req, res) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ message: "No token provided" });
+      try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token)
+          return res.status(401).json({ message: "No token provided" });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await usersCollection.findOne({
+          _id: new ObjectId(decoded.userId),
+        });
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json({ name: user.name, email: user.email, userName: user.userName, image: user.image });
-  } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+        res.json({
+          name: user.name,
+          email: user.email,
+          userName: user.userName,
+          image: user.image,
+        });
+      } catch (err) {
+        res.status(401).json({ message: "Invalid token" });
+      }
+    });
+
+    app.post("/allposts", async (req, res) => {
+      try {
+        const { userId, text, image, audience, likes, createdAt } = req.body;
+        if (!userId) {
+          return res
+            .status(400)
+            .json({ message: "UserId and text are required" });
+        }
+        const data = {
+          userId,
+          text,
+          image,
+          audience,
+          likes,
+          createdAt,
+        };
+        const response = await allPostsCollection.insertOne(data);
+        res.status(201).json({ message: "Post created", post: response });
+      } catch (error) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
+// POST /posts/:postId/like
+app.post("/allposts/:postId/like", async (req, res) => {
+
+  const { userId } = req.body;
+  const { postId } = req.params;
+console.log(postId, userId);
+  const post = await allPostsCollection.findOne({ _id: new ObjectId(postId) });
+  if (!post) return res.status(404).json({ message: "Post not found" });
+console.log(post);
+  let updatedLikes;
+  if (post.likes.includes(userId)) {
+    // unlike
+    updatedLikes = post.likes.filter(id => id !== userId);
+  } else {
+    // like
+    updatedLikes = [...post.likes, userId];
   }
+
+  await allPostsCollection.updateOne(
+    { _id: new ObjectId(postId) },
+    { $set: { likes: updatedLikes } }
+  );
+
+  res.json({ likes: updatedLikes });
 });
 
-
+    app.get('/allposts', async(req, res) =>{
+      const result = await allPostsCollection.find().toArray()
+      res.send(result)
+    })
     await client.db("admin").command({ ping: 1 });
   } finally {
     // Ensures that the client will close when you finish/error
