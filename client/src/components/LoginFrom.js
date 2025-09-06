@@ -25,6 +25,7 @@ const LoginFrom = ({ mode = "signup" }) => {
     );
 
     const data = await response.json();
+    console.log(data.data);
     return data?.data?.url || null;
   };
 
@@ -42,7 +43,9 @@ const LoginFrom = ({ mode = "signup" }) => {
         if (!name || !email || !password || !userName) {
           return res.status(400).json({ message: "All fields required" });
         }
+
         const imageUrl = await uploadImageToImgbb(file);
+        console.log(name);
         console.log(imageUrl);
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_LOCALHOST_LINK}/register`,
@@ -88,6 +91,7 @@ const LoginFrom = ({ mode = "signup" }) => {
         );
         if (response.status === 200) {
           const data = await response.json();
+             document.cookie = `authToken=${data.token}; path=/`;
           router.push("/");
         } else {
           const errorData = await response.json();

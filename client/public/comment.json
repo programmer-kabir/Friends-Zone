@@ -1,0 +1,31 @@
+{
+  "comments": [
+    {
+      "user": {
+        "id": "u1",
+        "name": "Kabir Hossen",
+        "image": "https://i.ibb.co/LDsdXPKd/Whats-App-Image-2025-09-01-at-8-24-08-PM.jpg"
+      },
+      "text": "This is my first comment!",
+      "createdAt": "2025-09-04T12:30:00Z"
+    },
+    {
+      "user": {
+        "id": "u2",
+        "name": "Arafat",
+        "image": "https://i.ibb.co/abc123/avatar2.jpg"
+      },
+      "text": "Wow! Nice post 🔥",
+      "createdAt": "2025-09-04T12:35:00Z"
+    },
+    {
+      "user": {
+        "id": "u3",
+        "name": "Sadia",
+        "image": "https://i.ibb.co/xyz456/avatar3.jpg"
+      },
+      "text": "Keep it up!",
+      "createdAt": "2025-09-04T12:40:00Z"
+    }
+  ]
+}
