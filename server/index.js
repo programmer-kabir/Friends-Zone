@@ -29,7 +29,8 @@ async function run() {
     await client.connect();
     // Connect the client to the server
     const usersCollection = client.db("Friends-Zone").collection("users");
-    const allPostsCollection = client.db("Friends-Zone").collection("allposts");
+    const allPostsCollection = client.db("Friends-Zone").collection("all-posts");
+    const allCommentsCollection = client.db("Friends-Zone").collection("all-comments");
 
     // User registration route
     app.post("/register", async (req, res) => {
@@ -155,7 +156,7 @@ async function run() {
       }
     });
 
-    app.post("/allposts", async (req, res) => {
+    app.post("/all-posts", async (req, res) => {
       try {
         const { userId, text, image, audience, likes, createdAt } = req.body;
         if (!userId) {
@@ -179,14 +180,17 @@ async function run() {
       }
     });
 // POST /posts/:postId/like
-app.post("/allposts/:postId/like", async (req, res) => {
+app.post("/all-posts/:postId/like", async (req, res) => {
 
   const { userId } = req.body;
+
   const { postId } = req.params;
-console.log(postId, userId);
-  const post = await allPostsCollection.findOne({ _id: new ObjectId(postId) });
-  if (!post) return res.status(404).json({ message: "Post not found" });
+console.log("postId from params:", userId);
+
+
+const post = await allPostsCollection.findOne({ _id: postId });
 console.log(post);
+  if (!post) return res.status(404).json({ message: "Post not found" });
   let updatedLikes;
   if (post.likes.includes(userId)) {
     // unlike
@@ -197,15 +201,23 @@ console.log(post);
   }
 
   await allPostsCollection.updateOne(
-    { _id: new ObjectId(postId) },
+    { _id:  (postId) },
     { $set: { likes: updatedLikes } }
   );
 
   res.json({ likes: updatedLikes });
 });
 
-    app.get('/allposts', async(req, res) =>{
+    app.get('/all-posts', async(req, res) =>{
+
       const result = await allPostsCollection.find().toArray()
+      // console.log(result);
+      res.send(result)
+    })
+    // Comments
+    app.get('/all-comments', async(req, res) =>{
+      const result = await allCommentsCollection.find().toArray()
+
       res.send(result)
     })
     await client.db("admin").command({ ping: 1 });

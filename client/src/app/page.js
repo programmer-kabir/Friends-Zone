@@ -18,7 +18,6 @@ const users = await getAllUsers()
       user,
     };
   });
-console.log(users);
   return (
     <ProtectedRoute>
     <section className="flex flex-col lg:flex-row w-full gap-7 pt-2">

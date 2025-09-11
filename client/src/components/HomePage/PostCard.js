@@ -1,21 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { FaRegThumbsUp, FaRegComment, FaShare } from "react-icons/fa";
 import { FaGlobeAmericas, FaLock, FaUserFriends } from "react-icons/fa";
 import axios from "axios";
 import { useUser } from "@/src/context/UserContext";
 import { IoClose } from "react-icons/io5";
+import CommentsShow from "../Cards/CommentsShow";
 
 export default function PostCard({ post }) {
+  const [comments, setComments] = useState([]);
   const [likes, setLikes] = useState(post.likes?.length || 0);
   const currentUser = useUser();
-
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(currentUser._id) || false
   );
   const [loading, setLoading] = useState(false);
-  const [newComment, setNewComment] = useState("");
   const [isCommentOpen, setIsCommentOpen] = useState(false);
 
   // Time ago function
@@ -42,7 +42,7 @@ export default function PostCard({ post }) {
     // setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCALHOST_LINK}/allposts/${post._id}/like`,
+        `${process.env.NEXT_PUBLIC_LOCALHOST_LINK}/all-posts/${post._id}/like`,
         { userId: currentUser._id }
       );
       setLikes(response.data.likes.length);
@@ -52,22 +52,30 @@ export default function PostCard({ post }) {
     }
     setLoading(false);
   };
-  const handleCommentSubmit = () => {
-    if (!newComment.trim()) return;
-    // backend call to save comment here
-    post.comments = [
-      ...(post.comments || []),
-      { text: newComment, user: { name: "You" } },
-    ];
-    setNewComment("");
-  };
 
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_LOCALHOST_LINK}/all-comments`
+        );
+        setComments(res.data);
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+      }
+    };
+    fetchComments();
+  }, [post._id]);
   const audienceIcons = {
     Public: <FaGlobeAmericas className="w-3.5 h-3.5 text-gray-500" />,
     Friends: <FaUserFriends className="w-3.5 h-3.5 text-gray-500" />,
     "Only Me": <FaLock className="w-3.5 h-3.5 text-gray-500" />,
   };
-
+  const currentPostComment = comments.find(
+    (comment) => comment.postId === post._id
+  );
+  // console.log(currentPostComment);
   return (
     <>
       <div className="bg-white shadow-md rounded-lg p-4 mb-6 border border-gray-200">
@@ -100,7 +108,7 @@ export default function PostCard({ post }) {
               alt="Post"
               width={800}
               height={450}
-              className="rounded-lg object-contain w-full"
+              className="rounded-lg object-contain max-h-80"
             />
           </div>
         )}
@@ -108,7 +116,8 @@ export default function PostCard({ post }) {
         {/* Like & Comment Count */}
         <div className="flex justify-between text-sm text-gray-500 mt-3 cursor-pointer">
           <p>{likes} Likes</p>
-          <p>{post.comments?.length || 0} Comments</p>
+
+          <p>{currentPostComment?.comments?.length || 0} Comments</p>
         </div>
 
         {/* Action Buttons */}
@@ -137,67 +146,11 @@ export default function PostCard({ post }) {
         </div>
       </div>
       {isCommentOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg w-1/2  relative  flex flex-col">
-            {/* Close Button */}
-            <button
-              onClick={() => setIsCommentOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 hover:text-black"
-            >
-              <IoClose size={24} />
-            </button>
-
-            {/* Title */}
-            <h3 className="text-lg font-semibold p-4 border-b text-center">{post?.user?.name} Post</h3>
-            {post.text && <p className="mt-3 text-gray-700 px-4">{post.text}</p>}
-
-            {/* Post Image */}
-            {post.image && (
-              <div className="mt-3">
-                <Image
-                  src={post.image}
-                  alt="Post"
-                  width={800}
-                  height={450}
-                  className="rounded-lg h-[250px] object-contain w-full"
-                />
-              </div>
-            )}
-            {/* Comments list (scrollable) */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {post.comments?.length > 0 ? (
-                post.comments.map((comment, index) => (
-                  <div
-                    key={index}
-                    className="border-b border-gray-200 pb-2 last:border-none"
-                  >
-                    <p className="text-sm font-medium">{comment.user.name}</p>
-                    <p className="text-gray-600 text-sm">{comment.text}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-sm">No comments yet.</p>
-              )}
-            </div>
-
-            {/* Add new comment (always at bottom) */}
-            <div className="border-t p-3 flex gap-2">
-              <input
-                type="text"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Write a comment..."
-                className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none"
-              />
-              <button
-                onClick={handleCommentSubmit}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-              >
-                Post
-              </button>
-            </div>
-          </div>
-        </div>
+        <CommentsShow
+          setIsCommentOpen={setIsCommentOpen}
+          post={post}
+          comments={comments}
+        />
       )}
     </>
   );

@@ -15,7 +15,7 @@ import { LiaUserFriendsSolid } from "react-icons/lia";
 export default function Sidebar() {
   const [isSearchModal, setIsSearchModal] = useState(false);
 const currentUser = useUser();
-console.log(currentUser);
+// console.log(currentUser);
   const router = useRouter();
    const handleLogout = () => {
     // Clear authToken cookie (expire it instantly)
