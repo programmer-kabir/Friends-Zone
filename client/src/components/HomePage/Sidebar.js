@@ -11,11 +11,12 @@ import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useUser } from "@/src/context/UserContext";
 import { LiaUserFriendsSolid } from "react-icons/lia";
+import Link from "next/link";
 
 export default function Sidebar() {
   const [isSearchModal, setIsSearchModal] = useState(false);
 const currentUser = useUser();
-// console.log(currentUser);
+
   const router = useRouter();
    const handleLogout = () => {
     // Clear authToken cookie (expire it instantly)
@@ -34,10 +35,10 @@ const currentUser = useUser();
             <Image src={logo} alt="friends-zone" className="w-full" />
           </div>
 
-          <div className="flex items-center gap-2 hover:bg-[#f0f0f0] px-3 py-2 rounded-md cursor-pointer">
+          <Link href={"/"} className="flex items-center gap-2 hover:bg-[#f0f0f0] px-3 py-2 rounded-md cursor-pointer">
             <IoHomeOutline className="w-6 h-6" />
             <p className="text-lg pt-1.5">Home</p>
-          </div>
+          </Link>
 
           <div className="px-3">
             <button
@@ -72,7 +73,7 @@ const currentUser = useUser();
             <p className="text-lg pt-1.5 font-normal">Create Post</p>
           </div>
 
-          <div className="flex items-center gap-2 hover:bg-[#f0f0f0] px-3 py-2 rounded-md cursor-pointer">
+          <Link href={`/profiles/${currentUser?.userName}`} className="flex items-center gap-2 hover:bg-[#f0f0f0] px-3 py-2 rounded-md cursor-pointer">
             <Image
               src={currentUser?.image}
               alt="Profile Image"
@@ -81,7 +82,7 @@ const currentUser = useUser();
               className="w-9 h-9 rounded-full object-cover"
             />
             <p className="text-lg pt-0.5 font-normal">Profile</p>
-          </div>
+          </Link>
         </nav>
 
         {/* Bottom Section (Sign Out) */}

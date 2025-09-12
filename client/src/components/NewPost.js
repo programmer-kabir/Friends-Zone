@@ -63,7 +63,7 @@ const NewPost = ({ onClose }) => {
         likes: [],
         createdAt: new Date().toISOString(),
       };
-    await axios.post("http://localhost:5000/allposts", newPost);
+      await axios.post("http://localhost:5000/all-posts", newPost);
       console.log("Post created:", newPost);
       setPostText("");
       setImagePreview(null);

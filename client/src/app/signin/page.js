@@ -2,10 +2,10 @@ import image from "@/public/asset/sign-in.jpg";
 import Image from "next/image";
 import Link from "next/link";
 import LoginFrom from "@/src/components/LoginFrom";
-import SocialLogin from "@/src/components/SocialLogin";
 const SignIn = () => {
   return (
-    <div className="min-h-screen bg-[#2C2638] flex gap-20 p-5">
+     <div className="fixed inset-0 bg-black bg-opacity-50">
+    <div className="bg-[#2C2638] flex gap-20 p-5 min-h-screen">
       {/* Left Side */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <Image src={image} alt="sign up page " className="rounded-2xl" />
@@ -36,6 +36,8 @@ const SignIn = () => {
         </div>
       </div>
     </div>
+      
+   </div>
   );
 };
 

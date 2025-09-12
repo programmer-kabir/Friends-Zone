@@ -1,14 +1,13 @@
 import image from '@/public/asset/sign-up.jpg'
 import Image from "next/image";
 import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";
-import { doSocialLogin } from "../actions";
 import LoginFrom from '@/src/components/LoginFrom';
-import SocialLogin from '@/src/components/SocialLogin';
 
 const SignUP = () => {
 
   return (
+    <div className='fixed inset-0 bg-black bg-opacity-50'>
+
     <div className="min-h-screen bg-[#2C2638] flex gap-20 p-5">
       {/* Left Side */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
@@ -36,6 +35,7 @@ const SignUP = () => {
           
         </div>
       </div>
+    </div>
     </div>
   )
 }
