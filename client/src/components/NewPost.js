@@ -106,7 +106,7 @@ const NewPost = ({ onClose }) => {
           />
           <div className="flex flex-col w-full">
             <p className="font-medium text-gray-700">{currentUser?.name}</p>
-            <button
+            <div
               onClick={() => setIsAudienceOpen(!isAudienceOpen)}
               className="flex items-center gap-2 px-2 py-1 text-sm rounded bg-gray-200 w-max mt-1"
             >
@@ -115,7 +115,7 @@ const NewPost = ({ onClose }) => {
                   ?.icon
               }
               {selectedAudience}
-            </button>
+            </div>
 
             {isAudienceOpen && (
               <div className="absolute top-12 left-14 w-40 bg-white border rounded-lg shadow-lg z-50">

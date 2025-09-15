@@ -159,6 +159,23 @@ async function run() {
         res.status(401).json({ message: "Invalid token" });
       }
     });
+// server.js or api/users.js
+app.get("/users/search", async (req, res) => {
+  const { username } = req.query;
+
+  if (!username) return res.status(400).send({ error: "Username required" });
+
+  try {
+    const users = await usersCollection
+      .find({ userName: { $regex: username, $options: "i" } }) // i = case-insensitive
+      .project({ password: 0 }) // password hide
+      .toArray();
+
+    res.send(users);
+  } catch (err) {
+    res.status(500).send({ error: "Failed to search users" });
+  }
+});
 
     app.post("/all-posts", async (req, res) => {
       try {
@@ -219,10 +236,23 @@ async function run() {
     });
 
     app.get("/all-posts", async (req, res) => {
-      const result = await allPostsCollection.find().toArray();
-      // console.log(result);
-      res.send(result);
-    });
+  try {
+    const posts = await allPostsCollection
+      .aggregate([
+        
+        {
+          $sort: { createdAt: -1 },
+        },
+      ])
+      .toArray();
+
+    res.send(posts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Failed to fetch posts with comments" });
+  }
+});
+
     // Comments
     app.post("/all-comments", async (req, res) => {
       const { postId, user, text, createdAt } = req.body?.newCommentData;

@@ -12,6 +12,7 @@ import { IoClose } from "react-icons/io5";
 import { useUser } from "@/src/context/UserContext";
 import { LiaUserFriendsSolid } from "react-icons/lia";
 import Link from "next/link";
+import SearchUser from "./SearchUser";
 
 export default function Sidebar() {
   const [isSearchModal, setIsSearchModal] = useState(false);
@@ -19,10 +20,7 @@ const currentUser = useUser();
 
   const router = useRouter();
    const handleLogout = () => {
-    // Clear authToken cookie (expire it instantly)
     document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-
-    // Redirect to signin page
     router.push("/signin");
   };
   return (
@@ -92,27 +90,7 @@ const currentUser = useUser();
         </div>
       </aside>
       {isSearchModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white relative p-6 rounded-lg shadow-lg w-2/5">
-            <button
-              onClick={() => setIsSearchModal(false)}
-              className="flex items-center justify-end absolute  top-3 right-3 cursor-pointer"
-            >
-              <IoClose size={32} />
-            </button>
-            <h2 className="text-2xl font-medium mt-4 pb-3">Search Users</h2>
-            <input
-              type="text"
-              placeholder="Type here user name or email..."
-              className="border-2 text-lg px-3 py-2 w-full rounded outline-none text-[#344258] border-[#E7E5E4]"
-            />
-            <div className="text-center flex flex-col justify-center items-center pt-16 pb-10">
-              <IoIosSearch size={50} className="text-[#78716C]"/>
-              <p className="text-xl text-[#0C0A09] font-medium pt-5">Start typing to search users</p>
-              <p className="text-[#78716C] text-lg pt-2">Search results will appear here</p>
-            </div>
-          </div>
-        </div>
+       <SearchUser setIsSearchModal={setIsSearchModal}/>
       )}
     </section>
   );

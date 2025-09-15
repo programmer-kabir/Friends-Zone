@@ -6,9 +6,10 @@ import coverImage from "@/public/asset/cover_bg.png";
 import { IoMdMail } from "react-icons/io";
 import BasicInfo from "@/src/components/profile/BasicInfo";
 const Profile = async ({ params }) => {
-  const { username } = params;
+  const { username } = await params;
   const users = await getAllUsers();
   const user = users.find((u) => u.userName === username);
+  console.log(user);
   return (
     <section className="pb-10">
       <Header title={"Profile"} />
