@@ -32,7 +32,6 @@ export default async function RootLayout({ children,pageTitle  }) {
       currentUser = null;
     }
   }
-  console.log(currentUser);
   return (
     <html lang="en">
       <body className={roboto.className}>

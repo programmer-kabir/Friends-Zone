@@ -7,6 +7,7 @@ import axios from "axios";
 import { useUser } from "@/src/context/UserContext";
 import { IoClose } from "react-icons/io5";
 import CommentsShow from "../Cards/CommentsShow";
+import getAllComments from "@/src/lib/getAllComments";
 
 export default function PostCard({ post }) {
   const [comments, setComments] = useState([]);
@@ -57,16 +58,16 @@ export default function PostCard({ post }) {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_LOCALHOST_LINK}/all-comments`
-        );
-        setComments(res.data);
+        const data = await getAllComments(post._id);
+console.log(data);
+       setComments(data?.comments || []);
       } catch (error) {
         console.error("Failed to fetch comments:", error);
       }
     };
     fetchComments();
   }, [post._id]);
+  console.log(comments);
   const audienceIcons = {
     Public: <FaGlobeAmericas className="w-3.5 h-3.5 text-gray-500" />,
     Friends: <FaUserFriends className="w-3.5 h-3.5 text-gray-500" />,
@@ -117,7 +118,7 @@ export default function PostCard({ post }) {
         <div className="flex justify-between text-sm text-gray-500 mt-3 cursor-pointer">
           <p>{likes} Likes</p>
 
-          <p>{currentPostComment?.comments?.length || 0} Comments</p>
+          <p>{comments?.length || 0} Comments</p>
         </div>
 
         {/* Action Buttons */}
@@ -145,13 +146,17 @@ export default function PostCard({ post }) {
           </button>
         </div>
       </div>
-      {isCommentOpen && (
-        <CommentsShow
-          setIsCommentOpen={setIsCommentOpen}
-          post={post}
-          comments={comments}
-        />
-      )}
+    {isCommentOpen && (
+  <CommentsShow
+    setIsCommentOpen={setIsCommentOpen}
+    post={post}
+    comments={comments}
+    onCommentAdd={(newComment) => {
+      setComments((prev) => [...prev, newComment]);
+    }}
+  />
+)}
+
     </>
   );
 }

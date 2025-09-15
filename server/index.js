@@ -29,8 +29,12 @@ async function run() {
     await client.connect();
     // Connect the client to the server
     const usersCollection = client.db("Friends-Zone").collection("users");
-    const allPostsCollection = client.db("Friends-Zone").collection("all-posts");
-    const allCommentsCollection = client.db("Friends-Zone").collection("all-comments");
+    const allPostsCollection = client
+      .db("Friends-Zone")
+      .collection("all-posts");
+    const allCommentsCollection = client
+      .db("Friends-Zone")
+      .collection("all-comments");
 
     // User registration route
     app.post("/register", async (req, res) => {
@@ -179,47 +183,69 @@ async function run() {
         res.status(500).json({ message: "Server error" });
       }
     });
-// POST /posts/:postId/like
-app.post("/all-posts/:postId/like", async (req, res) => {
+    // POST /posts/:postId/like
+    const { ObjectId } = require("mongodb");
 
-  const { userId } = req.body;
+    app.post("/all-posts/:postId/like", async (req, res) => {
+      const { userId } = req.body;
+      const { postId } = req.params;
 
-  const { postId } = req.params;
-console.log("postId from params:", userId);
+      try {
+        const post = await allPostsCollection.findOne({
+          _id: new ObjectId(postId),
+        });
 
+        if (!post) return res.status(404).json({ message: "Post not found" });
 
-const post = await allPostsCollection.findOne({ _id: postId });
-console.log(post);
-  if (!post) return res.status(404).json({ message: "Post not found" });
-  let updatedLikes;
-  if (post.likes.includes(userId)) {
-    // unlike
-    updatedLikes = post.likes.filter(id => id !== userId);
-  } else {
-    // like
-    updatedLikes = [...post.likes, userId];
-  }
+        let updatedLikes;
+        if (post.likes.includes(userId)) {
+          // unlike
+          updatedLikes = post.likes.filter((id) => id !== userId);
+        } else {
+          // like
+          updatedLikes = [...post.likes, userId];
+        }
 
-  await allPostsCollection.updateOne(
-    { _id:  (postId) },
-    { $set: { likes: updatedLikes } }
-  );
+        await allPostsCollection.updateOne(
+          { _id: new ObjectId(postId) },
+          { $set: { likes: updatedLikes } }
+        );
 
-  res.json({ likes: updatedLikes });
-});
+        res.json({ likes: updatedLikes });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Something went wrong" });
+      }
+    });
 
-    app.get('/all-posts', async(req, res) =>{
-
-      const result = await allPostsCollection.find().toArray()
+    app.get("/all-posts", async (req, res) => {
+      const result = await allPostsCollection.find().toArray();
       // console.log(result);
-      res.send(result)
-    })
+      res.send(result);
+    });
     // Comments
-    app.get('/all-comments', async(req, res) =>{
-      const result = await allCommentsCollection.find().toArray()
+    app.post("/all-comments", async (req, res) => {
+      const { postId, user, text, createdAt } = req.body?.newCommentData;
 
-      res.send(result)
-    })
+      const newComment = {
+        user,
+        text,
+        createdAt,
+      };
+      console.log(newComment);
+      await allCommentsCollection.updateOne(
+        { postId: postId },
+        { $push: { comments: newComment } },
+        { upsert: true }
+      );
+
+      res.json({ message: "Comment added successfully", comment: newComment });
+    });
+    app.get("/all-comments/:postId", async (req, res) => {
+      const { postId } = req.params;
+      const commentsData = await allCommentsCollection.findOne({ postId });
+      res.json(commentsData || { comments: [] });
+    });
     await client.db("admin").command({ ping: 1 });
   } finally {
     // Ensures that the client will close when you finish/error
